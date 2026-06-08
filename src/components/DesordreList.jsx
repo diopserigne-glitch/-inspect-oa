@@ -20,7 +20,10 @@ export default function DesordreList({ desordres, videos, activeId, onPick, onRe
                 <span className="dl-thumb placeholder">—</span>
               )}
               <span className="dl-info">
-                <span className="dl-title">{d.classif?.typeDesordre || 'Désordre non typé'}</span>
+                <span className="dl-title">
+                  {d.source === 'ia' && <span className="ia-chip" title={`Détecté par IA${d.confiance != null ? ` · confiance ${Math.round(d.confiance * 100)}%` : ''}`}>IA</span>}
+                  {d.classif?.typeDesordre || 'Désordre non typé'}
+                </span>
                 <span className="dl-sub">
                   {nomVideo(d.videoId)} · {formatTemps(d.t)}
                 </span>

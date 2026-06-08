@@ -117,6 +117,12 @@ button {
 .btn.ghost {
   background: transparent;
 }
+.btn.ai {
+  background: #6a3df0;
+  border-color: #6a3df0;
+  color: #fff;
+  font-weight: 600;
+}
 .btn.icon {
   padding: 8px 10px;
 }
@@ -399,6 +405,75 @@ button {
   flex: 1;
 }
 
+/* ---------- Analyse IA : progression ---------- */
+.ai-progress {
+  height: 6px;
+  background: var(--panel-2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+.ai-progress-bar {
+  height: 100%;
+  background: #6a3df0;
+  transition: width 0.2s;
+}
+
+/* ---------- Mise en exergue (lecture) ---------- */
+.hl-box {
+  position: absolute;
+  border: 2px solid #d32f2f;
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  animation: hl-pulse 1.2s ease-in-out infinite;
+}
+@keyframes hl-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.hl-tag {
+  position: absolute;
+  top: -20px;
+  left: -2px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px 4px 4px 0;
+  white-space: nowrap;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.hl-banner {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(10, 16, 24, 0.86);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  pointer-events: none;
+}
+.hl-badge {
+  color: #fff;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.hl-text {
+  font-size: 12px;
+  line-height: 1.35;
+  max-height: 48px;
+  overflow: hidden;
+}
+
 /* ---------- Timeline ---------- */
 .timeline {
   display: flex;
@@ -573,6 +648,17 @@ button {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.ia-chip {
+  display: inline-block;
+  background: #6a3df0;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  margin-right: 5px;
+  vertical-align: middle;
+}
 .dl-cote {
   color: #fff;
   font-weight: 700;
@@ -605,6 +691,25 @@ button {
   box-shadow: var(--shadow);
   width: min(980px, 100%);
   padding: 18px;
+}
+.modal.small {
+  width: min(520px, 100%);
+}
+.modal.small .field {
+  margin-bottom: 12px;
+}
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  background: var(--panel-2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin: 0 0 14px;
+}
+.hint code {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1px 5px;
+  border-radius: 4px;
 }
 .synth-head {
   display: flex;

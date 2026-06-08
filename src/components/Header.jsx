@@ -1,6 +1,6 @@
 import { coteParCode } from '../data/referentiels.js'
 
-export default function Header({ classeGlobale, nbDesordres, onSynthese, onReset }) {
+export default function Header({ classeGlobale, nbDesordres, onSynthese, onReset, onSettings }) {
   const cote = coteParCode(classeGlobale)
   return (
     <header className="app-header">
@@ -19,6 +19,9 @@ export default function Header({ classeGlobale, nbDesordres, onSynthese, onReset
         )}
         <button className="btn" type="button" onClick={onSynthese}>
           📋 Synthèse ({nbDesordres})
+        </button>
+        <button className="btn" type="button" onClick={onSettings} title="Réglages de l’agent IA">
+          ⚙️ IA
         </button>
         <button className="btn ghost" type="button" onClick={onReset}>
           ↺ Réinitialiser

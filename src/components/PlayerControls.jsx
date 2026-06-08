@@ -16,6 +16,9 @@ export default function PlayerControls({
   onRate,
   onAnnotate,
   annotating,
+  onAnalyze,
+  aiStatus,
+  iaConfiguree,
 }) {
   return (
     <div className="player-controls">
@@ -81,7 +84,27 @@ export default function PlayerControls({
         >
           {annotating ? '✎ En cours…' : '＋ Marquer un désordre'}
         </button>
+
+        <button
+          className="btn ai"
+          type="button"
+          disabled={!hasVideo || aiStatus?.running}
+          onClick={onAnalyze}
+          title={iaConfiguree ? 'Détection automatique des désordres' : 'Configurez le proxy IA (⚙️ IA)'}
+        >
+          🤖 {aiStatus?.running ? `Analyse… ${aiStatus.done}/${aiStatus.total}` : 'Analyse IA'}
+        </button>
       </div>
+
+      {aiStatus?.running && (
+        <div className="ai-progress">
+          <div
+            className="ai-progress-bar"
+            style={{ width: `${aiStatus.total ? (aiStatus.done / aiStatus.total) * 100 : 0}%` }}
+          />
+        </div>
+      )}
+      {aiStatus?.error && <p className="warn-line">⚠️ {aiStatus.error}</p>}
     </div>
   )
 }

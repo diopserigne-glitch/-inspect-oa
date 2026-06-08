@@ -11,6 +11,9 @@ import Timeline from './components/Timeline.jsx'
 import ClassificationForm from './components/ClassificationForm.jsx'
 import DesordreList from './components/DesordreList.jsx'
 import SynthesePanel from './components/SynthesePanel.jsx'
+import SettingsModal from './components/SettingsModal.jsx'
+import { analyserVideo } from './lib/aiDetect.js'
+import { lireReglagesIA, ecrireReglagesIA } from './lib/aiSettings.js'
 
 const VUE_INITIALE = { scale: 1, panX: 0, panY: 0 }
 
@@ -41,6 +44,9 @@ export default function App() {
   // editor : désordre en cours de création/édition (null = aucun)
   const [editor, setEditor] = useState(null)
   const [showSynthese, setShowSynthese] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [reglagesIA, setReglagesIA] = useState(() => lireReglagesIA())
+  const [aiStatus, setAiStatus] = useState(null)
 
   const activeVideoMeta = inspection.videos.find((v) => v.id === activeVideoId) || null
   const runtime = activeVideoId ? store.getRuntime(activeVideoId) : null
@@ -164,7 +170,39 @@ export default function App() {
 
   const cancelEditor = useCallback(() => setEditor(null), [])
 
+  // --- Analyse IA -----------------------------------------------------------
+  const handleAnalyze = useCallback(async () => {
+    if (!reglagesIA.proxyUrl) {
+      setShowSettings(true)
+      return
+    }
+    const video = videoRef.current
+    if (!video || !activeVideoId) return
+    setEditor(null)
+    setAiStatus({ running: true, done: 0, total: 0, error: null })
+    try {
+      const detections = await analyserVideo({
+        video,
+        videoId: activeVideoId,
+        typeOuvrage: inspection.ouvrage.typeOuvrage,
+        reglages: reglagesIA,
+        onProgress: (done, total) => setAiStatus({ running: true, done, total, error: null }),
+      })
+      detections.forEach((d) => store.addDesordre(d))
+      setAiStatus({ running: false, done: detections.length, total: detections.length, error: null })
+    } catch (e) {
+      setAiStatus({ running: false, error: e.message })
+    }
+  }, [reglagesIA, activeVideoId, inspection.ouvrage.typeOuvrage, store])
+
   const desordresVideo = inspection.desordres.filter((d) => d.videoId === activeVideoId)
+
+  // Désordres à mettre en exergue à l'instant courant (lecture = visite guidée).
+  const highlights = editor
+    ? []
+    : desordresVideo
+        .filter((d) => Math.abs(d.t - currentTime) <= 0.6)
+        .sort((a, b) => Math.abs(a.t - currentTime) - Math.abs(b.t - currentTime))
 
   return (
     <div className="app">
@@ -172,6 +210,7 @@ export default function App() {
         classeGlobale={store.classeGlobale}
         nbDesordres={inspection.desordres.length}
         onSynthese={() => setShowSynthese(true)}
+        onSettings={() => setShowSettings(true)}
         onReset={() => {
           if (confirm('Réinitialiser toute l’inspection ? (les désordres seront effacés)')) {
             store.reset()
@@ -205,6 +244,7 @@ export default function App() {
             onLoadedMeta={(d) => setDuration(d)}
             onTimeUpdate={(t) => setCurrentTime(t)}
             onPlayState={setPlaying}
+            highlights={highlights}
           />
           <PlayerControls
             hasVideo={!!runtime}
@@ -220,6 +260,9 @@ export default function App() {
             onRate={(r) => { if (videoRef.current) videoRef.current.playbackRate = r }}
             onAnnotate={startAnnotation}
             annotating={!!editor}
+            onAnalyze={handleAnalyze}
+            aiStatus={aiStatus}
+            iaConfiguree={!!reglagesIA.proxyUrl}
           />
           <Timeline
             duration={duration}
@@ -272,6 +315,17 @@ export default function App() {
             store.dispatch({ type: 'HYDRATE', inspection: insp })
             setActiveVideoId(null)
             setShowSynthese(false)
+          }}
+        />
+      )}
+
+      {showSettings && (
+        <SettingsModal
+          reglages={reglagesIA}
+          onClose={() => setShowSettings(false)}
+          onSave={(r) => {
+            setReglagesIA(ecrireReglagesIA(r))
+            setShowSettings(false)
           }}
         />
       )}

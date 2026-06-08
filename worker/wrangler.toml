@@ -1,0 +1,12 @@
+name = "inspectoa-proxy"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# Origine autorisée pour le CORS (mettez l'URL GitHub Pages de l'app en prod,
+# ex. "https://votre-utilisateur.github.io"). "*" en développement.
+[vars]
+ALLOWED_ORIGIN = "*"
+
+# Secrets (NE PAS mettre ici — utiliser wrangler secret put) :
+#   wrangler secret put ANTHROPIC_API_KEY
+#   wrangler secret put APP_TOKEN          # optionnel

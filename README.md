@@ -11,6 +11,10 @@ référentiels **IQOA / ITSEOA / CEREMA**.
 - **Lecteur** avec lecture/pause, image par image, vitesse de lecture et barre de navigation.
 - **Zoom & déplacement** sur l'image (molette + glisser) pour observer un désordre de près.
 - **Annotation** : sur pause, on encadre le désordre ; l'application **capture la vue**.
+- **Détection automatique par IA** : un agent Claude (vision) analyse des images extraites de la
+  vidéo, détecte les désordres, les **localise** (boîte englobante), les **classe** (IQOA/ITSEOA)
+  et les **explique**. Pendant la lecture, l'app **met en exergue** chaque désordre détecté
+  (cadre + libellé + cote) et affiche son **explication**. Voir « Détection IA » ci-dessous.
 - **Classification** en cascade : type d'ouvrage → partie → matériau → famille → type de désordre,
   **cote IQOA** (1, 2, 2E, 3, 3U) — et cote « eau » pour les tunnels — + **commentaire libre**.
 - **Marqueurs** colorés sur la timeline ; clic = retour au désordre avec restitution du zoom.
@@ -30,6 +34,34 @@ Ouvrages couverts : **ponts**, **murs de soutènement**, **tunnels / tranchées 
 > payantes), **à faire valider et compléter** par le gestionnaire. La taxonomie est centralisée
 > dans [`src/data/referentiels.js`](src/data/referentiels.js) et conçue pour être étendue sans
 > toucher au code.
+
+## Détection IA (agent Claude)
+
+L'app étant 100 % navigateur, elle n'embarque pas la clé API. La détection passe par un **proxy
+serverless** (Cloudflare Worker, dossier [`worker/`](worker/)) qui détient la clé et relaie les
+requêtes vers l'API Claude. Flux : l'app extrait des images de la vidéo → les envoie au proxy →
+Claude (vision + *tool use*) renvoie les désordres structurés (boîte normalisée, type, partie,
+matériau, cote IQOA, explication) → l'app les ajoute comme désordres (marqués « IA ») et les met
+en exergue pendant la lecture. Le catalogue (prompt système) est mis en **cache** pour réduire le
+coût des images suivantes.
+
+**Déployer le proxy :**
+
+```bash
+npm i -g wrangler
+cd worker
+wrangler deploy
+wrangler secret put ANTHROPIC_API_KEY     # colle ta clé sk-ant-...
+# optionnel : wrangler secret put APP_TOKEN  (jeton partagé app <-> worker)
+```
+
+Puis, dans l'app, ouvrir **⚙️ IA** et renseigner l'URL du worker (et le jeton si défini). Choisir
+le modèle (défaut **Haiku 4.5** — `claude-haiku-4-5`), l'intervalle d'échantillonnage et le nombre
+d'images max. Enfin, cliquer **🤖 Analyse IA** sur une vidéo chargée.
+
+> Le worker borne les requêtes (modèles sur liste blanche, nb d'images) et applique le CORS. En
+> production, fixe `ALLOWED_ORIGIN` (toml) sur l'URL Pages de l'app et définis un `APP_TOKEN`.
+> La détection assiste l'inspecteur : **les désordres IA restent à valider/corriger** dans l'app.
 
 ## Développement
 

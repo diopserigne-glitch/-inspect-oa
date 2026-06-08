@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import AnnotationOverlay from './AnnotationOverlay.jsx'
+import { couleurCote } from '../data/referentiels.js'
 
 const SCALE_MIN = 1
 const SCALE_MAX = 8
@@ -19,6 +20,7 @@ export default function VideoStage({
   onLoadedMeta,
   onTimeUpdate,
   onPlayState,
+  highlights = [],
 }) {
   const viewportRef = useRef(null)
   const pan = useRef(null) // état de déplacement en cours
@@ -109,10 +111,45 @@ export default function VideoStage({
           onPlay={() => onPlayState(true)}
           onPause={() => onPlayState(false)}
         />
+        {!drawing &&
+          highlights.map(
+            (d) =>
+              d.box &&
+              d.box.w > 0 && (
+                <div
+                  key={d.id}
+                  className="hl-box"
+                  style={{
+                    left: `${d.box.x * 100}%`,
+                    top: `${d.box.y * 100}%`,
+                    width: `${d.box.w * 100}%`,
+                    height: `${d.box.h * 100}%`,
+                    borderColor: couleurCote(d.classif?.coteIQOA),
+                  }}
+                >
+                  <span className="hl-tag" style={{ background: couleurCote(d.classif?.coteIQOA) }}>
+                    {d.classif?.typeDesordre || 'désordre'} · {d.classif?.coteIQOA}
+                  </span>
+                </div>
+              )
+          )}
+
         <AnnotationOverlay active={drawing} box={box} onBoxChange={onBoxChange} />
       </div>
 
       {view.scale > 1 && <div className="zoom-tag">×{view.scale.toFixed(1)}</div>}
+
+      {!drawing && highlights[0] && (
+        <div className="hl-banner">
+          <span className="hl-badge" style={{ background: couleurCote(highlights[0].classif?.coteIQOA) }}>
+            {highlights[0].source === 'ia' ? '🤖' : '✎'} {highlights[0].classif?.coteIQOA}
+          </span>
+          <div className="hl-text">
+            <strong>{highlights[0].classif?.typeDesordre || 'Désordre'}</strong>
+            {highlights[0].classif?.commentaire ? ` — ${highlights[0].classif.commentaire}` : ''}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
