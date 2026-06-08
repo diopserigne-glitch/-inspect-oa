@@ -19,6 +19,10 @@ référentiels **IQOA / ITSEOA / CEREMA**.
   **cote IQOA** (1, 2, 2E, 3, 3U) — et cote « eau » pour les tunnels — + **commentaire libre**.
 - **Marqueurs** colorés sur la timeline ; clic = retour au désordre avec restitution du zoom.
 - **Synthèse** : tableau des désordres, compteurs par classe, **classe globale = pire cas**.
+- **Vidéo annotée (résultat visualisable)** : régénère la vidéo du drone **retravaillée** — chaque
+  désordre est incrusté au bon instant (cadre coloré par cote + libellé + explication), avec un
+  en-tête (ouvrage + classe globale). Rejouable dans l'app et **téléchargeable en `.webm`**
+  (rendu Canvas + MediaRecorder, 100 % navigateur).
 - **Export PDF** (PV de visite avec vignettes) et **export/import JSON** (sauvegarde & partage).
 - **Persistance locale** (IndexedDB) : l'inspection est conservée entre les sessions. Les vidéos,
   trop volumineuses, ne sont pas stockées : on les re-sélectionne au rechargement (ré-attachement

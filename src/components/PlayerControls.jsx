@@ -19,6 +19,9 @@ export default function PlayerControls({
   onAnalyze,
   aiStatus,
   iaConfiguree,
+  onExportVideo,
+  videoExport,
+  nbDesordresVideo,
 }) {
   return (
     <div className="player-controls">
@@ -94,6 +97,16 @@ export default function PlayerControls({
         >
           🤖 {aiStatus?.running ? `Analyse… ${aiStatus.done}/${aiStatus.total}` : 'Analyse IA'}
         </button>
+
+        <button
+          className="btn"
+          type="button"
+          disabled={!hasVideo || videoExport?.running || aiStatus?.running}
+          onClick={onExportVideo}
+          title="Générer une vidéo annotée (désordres incrustés)"
+        >
+          🎬 {videoExport?.running ? `Rendu… ${Math.round((videoExport.progress || 0) * 100)}%` : 'Vidéo annotée'}
+        </button>
       </div>
 
       {aiStatus?.running && (
@@ -105,6 +118,13 @@ export default function PlayerControls({
         </div>
       )}
       {aiStatus?.error && <p className="warn-line">⚠️ {aiStatus.error}</p>}
+
+      {videoExport?.running && (
+        <div className="ai-progress">
+          <div className="ai-progress-bar" style={{ width: `${(videoExport.progress || 0) * 100}%`, background: '#1f9d55' }} />
+        </div>
+      )}
+      {videoExport?.error && <p className="warn-line">⚠️ {videoExport.error}</p>}
     </div>
   )
 }

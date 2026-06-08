@@ -12,7 +12,9 @@ import ClassificationForm from './components/ClassificationForm.jsx'
 import DesordreList from './components/DesordreList.jsx'
 import SynthesePanel from './components/SynthesePanel.jsx'
 import SettingsModal from './components/SettingsModal.jsx'
+import VideoResultModal from './components/VideoResultModal.jsx'
 import { analyserVideo } from './lib/aiDetect.js'
+import { genererVideoAnnotee } from './lib/renderVideo.js'
 import { lireReglagesIA, ecrireReglagesIA } from './lib/aiSettings.js'
 
 const VUE_INITIALE = { scale: 1, panX: 0, panY: 0 }
@@ -47,6 +49,8 @@ export default function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [reglagesIA, setReglagesIA] = useState(() => lireReglagesIA())
   const [aiStatus, setAiStatus] = useState(null)
+  const [videoExport, setVideoExport] = useState(null)
+  const [videoResult, setVideoResult] = useState(null)
 
   const activeVideoMeta = inspection.videos.find((v) => v.id === activeVideoId) || null
   const runtime = activeVideoId ? store.getRuntime(activeVideoId) : null
@@ -204,6 +208,30 @@ export default function App() {
         .filter((d) => Math.abs(d.t - currentTime) <= 0.6)
         .sort((a, b) => Math.abs(a.t - currentTime) - Math.abs(b.t - currentTime))
 
+  // --- Génération de la vidéo annotée (résultat visualisable) ---------------
+  const handleExportVideo = async () => {
+    const video = videoRef.current
+    if (!video || !activeVideoId) return
+    setEditor(null)
+    setVideoExport({ running: true, progress: 0, error: null })
+    try {
+      const result = await genererVideoAnnotee({
+        video,
+        desordres: desordresVideo,
+        ouvrage: inspection.ouvrage,
+        classeGlobale: store.classeGlobale,
+        onProgress: (t, dur) => setVideoExport({ running: true, progress: dur ? t / dur : 0, error: null }),
+      })
+      setVideoExport(null)
+      setVideoResult((prev) => {
+        if (prev?.url) URL.revokeObjectURL(prev.url)
+        return result
+      })
+    } catch (e) {
+      setVideoExport({ running: false, error: e.message })
+    }
+  }
+
   return (
     <div className="app">
       <Header
@@ -263,6 +291,9 @@ export default function App() {
             onAnalyze={handleAnalyze}
             aiStatus={aiStatus}
             iaConfiguree={!!reglagesIA.proxyUrl}
+            onExportVideo={handleExportVideo}
+            videoExport={videoExport}
+            nbDesordresVideo={desordresVideo.length}
           />
           <Timeline
             duration={duration}
@@ -327,6 +358,14 @@ export default function App() {
             setReglagesIA(ecrireReglagesIA(r))
             setShowSettings(false)
           }}
+        />
+      )}
+
+      {videoResult && (
+        <VideoResultModal
+          result={videoResult}
+          ouvrageNom={inspection.ouvrage.nom}
+          onClose={() => setVideoResult(null)}
         />
       )}
     </div>

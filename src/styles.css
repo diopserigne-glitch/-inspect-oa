@@ -695,6 +695,12 @@ button {
 .modal.small {
   width: min(520px, 100%);
 }
+.result-video {
+  width: 100%;
+  border-radius: 8px;
+  background: #000;
+  max-height: 60vh;
+}
 .modal.small .field {
   margin-bottom: 12px;
 }
