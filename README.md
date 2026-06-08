@@ -61,7 +61,11 @@ wrangler secret put ANTHROPIC_API_KEY     # colle ta clé sk-ant-...
 
 Puis, dans l'app, ouvrir **⚙️ IA** et renseigner l'URL du worker (et le jeton si défini). Choisir
 le modèle (défaut **Haiku 4.5** — `claude-haiku-4-5`), l'intervalle d'échantillonnage et le nombre
-d'images max. Enfin, cliquer **🤖 Analyse IA** sur une vidéo chargée.
+d'images max.
+
+**Annotation automatique** : par défaut, dès qu'une vidéo est chargée, l'agent l'analyse et
+l'annote automatiquement (option « Analyser automatiquement à l'ouverture d'une vidéo » dans
+⚙️ IA). Le bouton **🤖 Analyse IA** permet de relancer manuellement.
 
 > Le worker borne les requêtes (modèles sur liste blanche, nb d'images) et applique le CORS. En
 > production, fixe `ALLOWED_ORIGIN` (toml) sur l'URL Pages de l'app et définis un `APP_TOKEN`.

@@ -701,6 +701,19 @@ button {
   background: #000;
   max-height: 60vh;
 }
+.field-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  margin: 4px 0 12px;
+  cursor: pointer;
+}
+.field-check input {
+  width: 16px;
+  height: 16px;
+}
 .modal.small .field {
   margin-bottom: 12px;
 }

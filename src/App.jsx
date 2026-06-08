@@ -37,6 +37,7 @@ export default function App() {
   const store = useStore()
   const { inspection } = store
   const videoRef = useRef(null)
+  const autoAnalyseRef = useRef(new Set()) // vidéos déjà auto-analysées (anti-doublon)
 
   const [activeVideoId, setActiveVideoId] = useState(null)
   const [view, setView] = useState(VUE_INITIALE)
@@ -198,6 +199,21 @@ export default function App() {
       setAiStatus({ running: false, error: e.message })
     }
   }, [reglagesIA, activeVideoId, inspection.ouvrage.typeOuvrage, store])
+
+  // Annotation AUTOMATIQUE : dès qu'une vidéo est prête, l'agent l'analyse une fois.
+  useEffect(() => {
+    if (!reglagesIA.autoAnalyse || !reglagesIA.proxyUrl) return
+    if (!activeVideoId || !duration) return
+    if (aiStatus?.running) return
+    if (autoAnalyseRef.current.has(activeVideoId)) return
+    // déjà des désordres pour cette vidéo (importés / précédents) → on ne ré-analyse pas
+    if (inspection.desordres.some((d) => d.videoId === activeVideoId)) {
+      autoAnalyseRef.current.add(activeVideoId)
+      return
+    }
+    autoAnalyseRef.current.add(activeVideoId)
+    handleAnalyze()
+  }, [activeVideoId, duration, reglagesIA.autoAnalyse, reglagesIA.proxyUrl, aiStatus?.running]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const desordresVideo = inspection.desordres.filter((d) => d.videoId === activeVideoId)
 

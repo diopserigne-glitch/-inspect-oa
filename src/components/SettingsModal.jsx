@@ -89,6 +89,15 @@ export default function SettingsModal({ reglages, onSave, onClose }) {
           </label>
         </div>
 
+        <label className="field-check">
+          <input
+            type="checkbox"
+            checked={r.autoAnalyse}
+            onChange={(e) => set({ autoAnalyse: e.target.checked })}
+          />
+          <span>Analyser automatiquement à l’ouverture d’une vidéo</span>
+        </label>
+
         <div className="form-actions">
           <button className="btn ghost" type="button" onClick={onClose}>
             Annuler

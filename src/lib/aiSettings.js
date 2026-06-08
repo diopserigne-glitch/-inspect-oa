@@ -15,6 +15,7 @@ const DEFAUTS = {
   intervalleSec: 2, // une image analysée toutes les N secondes
   maxImages: 20, // plafond du nombre d'images analysées par vidéo
   seuilConfiance: 0.35, // détections sous ce seuil ignorées
+  autoAnalyse: true, // lance l'annotation automatiquement à l'ouverture d'une vidéo
 }
 
 export function lireReglagesIA() {
